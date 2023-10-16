@@ -7,17 +7,22 @@
     "test": "glob -c \"node --loader tsx --test\" \"./src/**/*.test.ts\"",
     "dev": "serverless offline -s -dev"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "typescript": "^5.1.6",
-    "tsx": "^3.12.7",
-    "glob": "^10.3.3",
+    "@serverless/typescript": "^3.30.1",
     "@types/aws-lambda": "^8.10.119",
+    "@types/node": "^18.0.0",
+    "esbuild": "^0.17.19",
+    "glob": "^10.3.3",
     "serverless": "^3.34.0",
     "serverless-esbuild": "^1.46.0",
-    "esbuild": "^0.17.19",
     "serverless-offline": "^12.0.4",
-    "@serverless/typescript": "^3.30.1"
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.428.0",
+    "@aws-sdk/util-dynamodb": "^3.428.0",
+    "@types/uuid": "^9.0.5",
+    "uuid": "^9.0.1"
   }
 }

@@ -11,6 +11,9 @@ provider:
   runtime: nodejs18.x
   region: eu-central-1
   stage: dev
+  environment:
+    PRODUCTS_TABLE_NAME: Products
+    STOCKS_TABLE_NAME: Stocks
   httpApi:
     cors:
       allowedOrigins:
@@ -29,6 +32,13 @@ functions:
           path: /api/products
           method: OPTIONS
 
+  createProduct:
+    handler: ./src/handlers/createProduct.handler
+    events:
+      - httpApi:
+          path: /api/products
+          method: POST
+
   getProductById:
     handler: ./src/handlers/getProductById.handler
     events:
@@ -38,3 +48,36 @@ functions:
       - httpApi:
           path: /api/product/{productId}
           method: OPTIONS
+
+  populateProducts:
+    handler: ./src/handlers/populateProducts.handler
+
+resources:
+  Resources:
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Products
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+    StocksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Stocks
+        AttributeDefinitions:
+          - AttributeName: product_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: product_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
