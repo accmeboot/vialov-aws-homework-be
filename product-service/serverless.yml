@@ -1,0 +1,40 @@
+service: product-service
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-esbuild # used for compiling/packaging the Typescript code
+  - serverless-offline # used for local execution
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  stage: dev
+  httpApi:
+    cors:
+      allowedOrigins:
+        - http://localhost:5000
+        - https://dr1rynhak7llz.cloudfront.net
+
+functions:
+  # Serverless Framework specific syntax
+  getProductList:
+    handler: ./src/handlers/getProductList.handler
+    events:
+      - httpApi:
+          path: /api/products
+          method: GET
+      - httpApi:
+          path: /api/products
+          method: OPTIONS
+
+  getProductById:
+    handler: ./src/handlers/getProductById.handler
+    events:
+      - httpApi:
+          path: /api/product/{productId}
+          method: GET
+      - httpApi:
+          path: /api/product/{productId}
+          method: OPTIONS
