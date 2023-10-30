@@ -1,0 +1,53 @@
+service: import-service
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-esbuild # used for compiling/packaging the Typescript code
+  - serverless-offline # used for local execution
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  stage: dev
+  environment:
+    BUCKET_NAME: import-service-products-data
+    PREFIX_NAME: uploaded
+  iamRoleStatements:
+    - Effect: Allow
+      Action: s3:ListBucket
+      Resource:
+        - arn:aws:s3:::import-service-products-data
+    - Effect: Allow
+      Action:
+        - s3:*
+      Resource:
+        - arn:aws:s3:::import-service-products-data/*
+  httpApi:
+    cors:
+      allowedOrigins:
+        - http://localhost:5000
+        - https://dr1rynhak7llz.cloudfront.net
+
+functions:
+  # Serverless Framework specific syntax
+  importProductsFile:
+    handler: ./src/handlers/importProductsFile.handler
+    events:
+      - httpApi:
+          path: /api/import
+          method: GET
+      - httpApi:
+          path: /api/import
+          method: OPTIONS
+  importFileParser:
+    handler: ./src/handlers/importFileParser.handler
+    events:
+      - s3:
+          bucket: import-service-products-data
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+            - suffix: .csv
+          existing: true
