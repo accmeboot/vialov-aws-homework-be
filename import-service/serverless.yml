@@ -12,12 +12,9 @@ provider:
   region: eu-central-1
   stage: dev
   environment:
-    PRODUCTS_TABLE_NAME: Products
-    STOCKS_TABLE_NAME: Stocks
     BUCKET_NAME: import-service-products-data
     PREFIX_NAME: uploaded
-    SQS_URL:
-      Ref: SQSQueue
+    SQS_URL: ${cf:product-service-dev.QueueUrl}
   iamRoleStatements:
     - Effect: Allow
       Action: s3:ListBucket
@@ -29,29 +26,19 @@ provider:
       Resource:
         - arn:aws:s3:::import-service-products-data/*
     - Effect: Allow
-      Action:
-        - sqs:*
-      Resource:
-        Fn::GetAtt:
-          - SQSQueue
-          - Arn
-    - Effect: Allow
       Action: # Gives permission to DynamoDB tables in a specific region
         - dynamodb:PutItem
       Resource: 'arn:aws:dynamodb:eu-central-1:333974565954:*'
+    - Effect: Allow
+      Action:
+        - sqs:*
+      Resource: ${cf:product-service-dev.QueueArn}
 
   httpApi:
     cors:
       allowedOrigins:
         - http://localhost:5000
         - https://dr1rynhak7llz.cloudfront.net
-
-resources:
-  Resources:
-    SQSQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: import-service-queue
 
 functions:
   # Serverless Framework specific syntax
@@ -74,12 +61,3 @@ functions:
             - prefix: uploaded/
             - suffix: .csv
           existing: true
-  catalogBatchProcess:
-    handler: ./src/handlers/catalogBatchProcess.handler
-    events:
-      - sqs:
-          batchSize: 5
-          arn:
-            Fn::GetAtt:
-              - SQSQueue
-              - Arn

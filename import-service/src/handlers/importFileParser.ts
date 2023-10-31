@@ -7,7 +7,7 @@ import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Readable } from 'stream';
 
 import csvParser from "csv-parser";
-import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
+import { SendMessageCommand, type SendMessageCommandOutput, SQSClient } from "@aws-sdk/client-sqs";
 
 const s3 = new S3Client({});
 const client = new SQSClient({});
@@ -27,18 +27,26 @@ export const handler: Handler = async (
 
     if (response.Body) {
       const buffer = Buffer.from(await response.Body.transformToByteArray());
+      const results: Promise<SendMessageCommandOutput>[] = [];
 
-      Readable.from(buffer)
-        .pipe(csvParser())
-        .on('data', async (data) => {
-          const command = new SendMessageCommand({
-            QueueUrl: process.env.SQS_URL,
-            DelaySeconds: 1,
-            MessageBody: JSON.stringify(data),
-          });
+      const waitForStream = new Promise<void>((resolve) => {
+        Readable.from(buffer)
+          .pipe(csvParser())
+          .on('data', (data) => {
+            const command = new SendMessageCommand({
+              QueueUrl: process.env.SQS_URL,
+              DelaySeconds: 1,
+              MessageBody: JSON.stringify(data),
+            });
 
-          await client.send(command);
-        })
+            results.push(client.send(command))
+          })
+        .on('end', () => { resolve() });
+
+      })
+
+      await waitForStream;
+      await Promise.all(results);
     }
   } catch (e) {
     console.error(e);
