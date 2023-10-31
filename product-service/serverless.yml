@@ -14,6 +14,8 @@ provider:
   environment:
     PRODUCTS_TABLE_NAME: Products
     STOCKS_TABLE_NAME: Stocks
+    SNS_ARN:
+      Ref: createProductTopic
   httpApi:
     cors:
       allowedOrigins:
@@ -39,6 +41,11 @@ provider:
             Fn::GetAtt:
               - catalogItemsQueue
               - Arn
+        - Effect: Allow
+          Action:
+            - sns:*
+          Resource:
+            Ref: createProductTopic
 
 
 functions:
@@ -88,6 +95,17 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: catalog-items-queue
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: catalog-items-topic
+    SNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: mishavjalv48@gmail.com
+        Protocol: email
+        TopicArn:
+          Ref: createProductTopic
     ProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:
