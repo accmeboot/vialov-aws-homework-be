@@ -20,7 +20,12 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.438.0",
     "@aws-sdk/client-s3": "^3.433.0",
-    "csv-parser": "^3.0.0"
+    "@aws-sdk/client-sqs": "^3.438.0",
+    "@aws-sdk/util-dynamodb": "^3.438.0",
+    "@types/uuid": "^9.0.6",
+    "csv-parser": "^3.0.0",
+    "uuid": "^9.0.1"
   }
 }

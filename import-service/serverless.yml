@@ -14,6 +14,7 @@ provider:
   environment:
     BUCKET_NAME: import-service-products-data
     PREFIX_NAME: uploaded
+    SQS_URL: ${cf:product-service-dev.QueueUrl}
   iamRoleStatements:
     - Effect: Allow
       Action: s3:ListBucket
@@ -24,6 +25,15 @@ provider:
         - s3:*
       Resource:
         - arn:aws:s3:::import-service-products-data/*
+    - Effect: Allow
+      Action: # Gives permission to DynamoDB tables in a specific region
+        - dynamodb:PutItem
+      Resource: 'arn:aws:dynamodb:eu-central-1:333974565954:*'
+    - Effect: Allow
+      Action:
+        - sqs:*
+      Resource: ${cf:product-service-dev.QueueArn}
+
   httpApi:
     cors:
       allowedOrigins:

@@ -14,6 +14,8 @@ provider:
   environment:
     PRODUCTS_TABLE_NAME: Products
     STOCKS_TABLE_NAME: Stocks
+    SNS_ARN:
+      Ref: createProductTopic
   httpApi:
     cors:
       allowedOrigins:
@@ -32,6 +34,18 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource: 'arn:aws:dynamodb:eu-central-1:333974565954:*'
+        - Effect: Allow
+          Action:
+            - sqs:*
+          Resource:
+            Fn::GetAtt:
+              - catalogItemsQueue
+              - Arn
+        - Effect: Allow
+          Action:
+            - sns:*
+          Resource:
+            Ref: createProductTopic
 
 
 functions:
@@ -65,9 +79,33 @@ functions:
 
   populateProducts:
     handler: ./src/handlers/populateProducts.handler
+  catalogBatchProcess:
+    handler: ./src/handlers/catalogBatchProcess.handler
+    events:
+      - sqs:
+          batchSize: 5
+          arn:
+            Fn::GetAtt:
+              - catalogItemsQueue
+              - Arn
 
 resources:
   Resources:
+    catalogItemsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: catalog-items-queue
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: catalog-items-topic
+    SNSSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: mishavjalv48@gmail.com
+        Protocol: email
+        TopicArn:
+          Ref: createProductTopic
     ProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -95,3 +133,14 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+  Outputs:
+    QueueArn:
+      Value:
+        Fn::GetAtt: [ catalogItemsQueue, Arn ]
+      Export:
+        Name: QueueArn
+    QueueUrl:
+      Value:
+        Fn::GetAtt: [ catalogItemsQueue, QueueUrl ]
+      Export:
+        Name: QueueUrl
