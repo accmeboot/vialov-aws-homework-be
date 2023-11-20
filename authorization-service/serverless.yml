@@ -1,0 +1,18 @@
+service: authorization-service
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-esbuild # used for compiling/packaging the Typescript code
+  - serverless-offline # used for local execution
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  stage: dev
+
+functions:
+  basicAuthorizer:
+    handler: basicAuthorizer.handler
