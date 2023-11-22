@@ -1,0 +1,37 @@
+service: cart-service
+
+frameworkVersion: "3"
+
+plugins:
+  - serverless-esbuild # used for compiling/packaging the Typescript code
+  - serverless-offline # used for local execution
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-central-1
+  stage: dev
+
+functions:
+  addItem:
+    handler: src/handlers/addItem.handler
+    events:
+      - httpApi:
+          path: /api/cart/item
+          method: POST
+      - httpApi:
+          path: /api/cart/item
+          method: OPTIONS
+  deleteItem:
+    handler: src/handlers/deleteItem.handler
+    events:
+      - httpApi:
+          path: /api/cart/item
+          method: DELETE
+  updateItem:
+    handler: src/handlers/updateItem.handler
+    events:
+      - httpApi:
+          path: /api/cart/item
+          method: PUT
