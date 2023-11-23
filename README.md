@@ -6,3 +6,8 @@
 - getProductList [GET] https://rg05khpmnc.execute-api.eu-central-1.amazonaws.com/api/products
 - createProduct [POST] https://rg05khpmnc.execute-api.eu-central-1.amazonaws.com/api/products
 - getFileSignedUrl [GET] https://sa36n4404c.execute-api.eu-central-1.amazonaws.com/api/import?name=products
+
+> Cart service endpoints:
+- addItem [POST] - https://w9dhqdm5al.execute-api.eu-central-1.amazonaws.com/api/cart/item
+- deleteItem [DELETE] - https://w9dhqdm5al.execute-api.eu-central-1.amazonaws.com/api/cart/item
+- updateItem [PUT] - https://w9dhqdm5al.execute-api.eu-central-1.amazonaws.com/api/cart/item
